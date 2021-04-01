@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -11,6 +13,16 @@ public class Main {
     public static <T> Predicate<T> removeDuplicate(final Function<? super T, ?> keyExtractor) {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
+    }
+
+    public static int findDuplicate(final ArrayList<Boy> boys, final Boy boy) {
+        int count = -1;
+        for (Boy person : boys) {
+            if (person.getName().equals(boy.getName())) {
+                count++;
+            }
+        }
+        return count;
     }
 
 
@@ -28,13 +40,22 @@ public class Main {
             add(new Boy("Михаил", 1));
             add(new Boy("Яков", 30));
         }};
-        List<Boy> filteredBoys = boys.stream()
+
+        List<Boy> adultBoys = boys.stream()
                 .filter(x -> (x.getAge() > 17))
+                .collect(Collectors.toList());
+
+        List<Boy> filteredBoys = adultBoys.stream()
                 .filter(removeDuplicate(Boy::getName))
                 .sorted(Comparator.comparing(Boy::getName))
                 .limit(4)
                 .collect(Collectors.toList());
 
-        System.out.println(filteredBoys);
+        Map<String, Integer> result = new HashMap<>();
+        for (Boy boy : filteredBoys) {
+            result.put(boy.getName(), findDuplicate(boys, boy));
+        }
+
+        System.out.println(result);
     }
 }
